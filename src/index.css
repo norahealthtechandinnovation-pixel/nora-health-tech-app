@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* NORA Health Tech & Innovation Brand Colors */
+    --nora-navy-950: #07172b;
+    --nora-navy-900: #0b2545; /* Core corporate brand navy */
+    --nora-navy-800: #133b6b;
+    --nora-navy-700: #1e528e;
+    --nora-teal-700: #006b6f;
+    --nora-teal-600: #008489; /* Official accent teal */
+    --nora-teal-500: #0a9ea4;
+    --nora-teal-100: #e0f2f3;
+    --nora-teal-50:  #f0f9fa;
+    --nora-slate-50: #f8fafc; /* Clean surface background */
+    --nora-border:   #e2e8f0;
+    --nora-white:    #ffffff;
+  }
+
+  body {
+    font-family: 'PT Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--nora-slate-50);
+    color: #1e293b;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--nora-navy-900);
+    font-family: 'PT Sans', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  code, kbd, samp, pre, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

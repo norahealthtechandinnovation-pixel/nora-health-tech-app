@@ -1,0 +1,8 @@
+{
+  "name": "NORA Health Tech & Innovation",
+  "description": "Official company application for NORA Health Tech & Innovation. Better Health for a Better tomorrow.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
+

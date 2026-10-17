@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070d1d"/>
+      <stop offset="100%" stop-color="#0f1f3d"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <!-- Background with safe zone -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  
+  <!-- Outer subtle circuit glow rings -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#0d9488" stroke-width="2" stroke-dasharray="8 8" opacity="0.3"/>
+  
+  <!-- Central White Medical Cross Core -->
+  <path d="M224 136 h64 v88 h88 v64 h-88 v88 h-64 v-88 h-88 v-64 h88 z" fill="#ffffff" rx="8"/>
+  
+  <!-- Overlay Pulse & Innovation Wave in Subtle Teal -->
+  <path d="M120 256 h56 l24 -40 l32 80 l32 -60 l24 30 l32 -10 h72" fill="none" stroke="url(#tealGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Innovation Nodes -->
+  <circle cx="200" cy="216" r="8" fill="#2dd4bf"/>
+  <circle cx="232" cy="296" r="8" fill="#14b8a6"/>
+  <circle cx="264" cy="236" r="8" fill="#2dd4bf"/>
+  <circle cx="288" cy="266" r="8" fill="#0d9488"/>
+</svg>
