@@ -19,6 +19,71 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      // In cloud preview and iframe environments, HMR WebSockets are not forwarded by the proxy.
+      // Intercept vite-hmr WebSocket creation so it never attempts an unreachable connection.
+      (function () {
+        var NativeWebSocket = window.WebSocket;
+        if (NativeWebSocket) {
+          window.WebSocket = function (url, protocols) {
+            var isHmr = protocols === 'vite-hmr' || (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1);
+            if (isHmr) {
+              var listeners = {};
+              var mockSocket = {
+                url: String(url),
+                protocol: 'vite-hmr',
+                readyState: 1, // WebSocket.OPEN
+                OPEN: 1,
+                CONNECTING: 0,
+                CLOSING: 2,
+                CLOSED: 3,
+                send: function () {},
+                close: function () {
+                  mockSocket.readyState = 3;
+                },
+                addEventListener: function (type, listener) {
+                  if (!listeners[type]) listeners[type] = [];
+                  listeners[type].push(listener);
+                  if (type === 'open') {
+                    setTimeout(function () {
+                      try { listener({ type: 'open' }); } catch (e) {}
+                    }, 0);
+                  }
+                },
+                removeEventListener: function (type, listener) {
+                  if (!listeners[type]) return;
+                  listeners[type] = listeners[type].filter(function (fn) { return fn !== listener; });
+                },
+                dispatchEvent: function () { return true; }
+              };
+              return mockSocket;
+            }
+            return new NativeWebSocket(url, protocols);
+          };
+          window.WebSocket.prototype = NativeWebSocket.prototype;
+          window.WebSocket.CONNECTING = 0;
+          window.WebSocket.OPEN = 1;
+          window.WebSocket.CLOSING = 2;
+          window.WebSocket.CLOSED = 3;
+        }
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          var msg = reason && (reason.message || String(reason));
+          if (msg && (msg.indexOf('WebSocket closed without opened') !== -1 || msg.indexOf('vite:ws') !== -1)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+        window.addEventListener('error', function (event) {
+          var msg = event.message || (event.error && event.error.message);
+          if (msg && (msg.indexOf('WebSocket closed without opened') !== -1 || msg.indexOf('vite:ws') !== -1)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+      })();
+    </script>
   </head>
   <body class="bg-[#f8fafc] text-slate-900 font-sans antialiased selection:bg-[#008489] selection:text-white">
     <div id="root"></div>
