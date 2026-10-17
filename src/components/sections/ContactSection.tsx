@@ -15,7 +15,7 @@ export const ContactSection: React.FC = () => {
     name: '',
     organization: '',
     email: '',
-    subject: 'Partnership & Collaboration Inquiry',
+    subject: 'General & Solutions Inquiry',
     message: '',
   });
 
@@ -73,7 +73,7 @@ export const ContactSection: React.FC = () => {
               <h3 className="text-sm font-bold text-[#0b2545]">Direct Inquiries</h3>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              For corporate partnerships, institutional research collaborations, or technology inquiries:
+              For product information, research inquiries, services, or direct communications:
             </p>
             <a
               href={`mailto:${COMPANY_INFO.contactEmail}`}
@@ -135,9 +135,9 @@ export const ContactSection: React.FC = () => {
         {/* Right Column: Interactive Inquiry Form */}
         <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-xs space-y-5">
           <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-base font-bold text-slate-900">Send an Inquiry</h3>
+            <h3 className="text-base font-bold text-slate-900">Contact NORA</h3>
             <p className="text-xs text-slate-500">
-              Reach out directly to our partnerships and research consultation team
+              For inquiries about NORA Health Tech & Innovation, our products, digital health solutions, research, and services, please contact us directly.
             </p>
           </div>
 
@@ -148,12 +148,12 @@ export const ContactSection: React.FC = () => {
               </div>
               <h4 className="text-base font-bold text-slate-900">Message Received</h4>
               <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                Thank you for contacting NORA Health Tech & Innovation. A representative from our partnership team will review your inquiry at <strong className="font-mono text-slate-800">{formData.email}</strong>.
+                Thank you for contacting NORA Health Tech & Innovation. A representative from our team will review your inquiry at <strong className="font-mono text-slate-800">{formData.email}</strong>.
               </p>
               <button
                 onClick={() => {
                   setSubmitted(false);
-                  setFormData({ name: '', organization: '', email: '', subject: 'Partnership & Collaboration Inquiry', message: '' });
+                  setFormData({ name: '', organization: '', email: '', subject: 'General & Solutions Inquiry', message: '' });
                 }}
                 className="mt-4 px-4 py-2 text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
               >
@@ -207,9 +207,9 @@ export const ContactSection: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-teal-500 bg-white"
                   >
-                    <option value="Partnership & Collaboration Inquiry">Partnership & Collaboration Inquiry</option>
+                    <option value="General & Solutions Inquiry">General & Solutions Inquiry</option>
                     <option value="Product Demonstration Request">Product Demonstration Request</option>
-                    <option value="Research & Clinical Evidence Working Group">Research & Clinical Evidence</option>
+                    <option value="Research & Clinical Evidence Inquiry">Research & Clinical Evidence</option>
                     <option value="Health Policy & Regulatory Consultation">Health Policy & Regulatory</option>
                     <option value="Media & Press Inquiry">Media & Press Inquiry</option>
                   </select>
@@ -223,7 +223,7 @@ export const ContactSection: React.FC = () => {
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Describe your health technology needs, research collaboration proposal, or question..."
+                  placeholder="Describe your health technology needs, research inquiry, or question..."
                   className="w-full px-3 py-2 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-teal-500 leading-relaxed"
                 />
               </div>
