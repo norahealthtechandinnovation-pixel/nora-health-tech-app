@@ -1,3 +1,4 @@
+
 import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
@@ -202,3 +203,4 @@ async function initServer() {
 initServer().catch((err) => {
   console.error('Failed to start server:', err);
 });
+
