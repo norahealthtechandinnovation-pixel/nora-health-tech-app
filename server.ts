@@ -115,36 +115,54 @@ app.post(
       <p>${escapeHtml(cleanMessage).replace(/\n/g, '<br>')}</p>
     `;
 
-    try {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpSecure,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+    
+try {
+  const resendApiKey = process.env.RESEND_API_KEY;
 
-      await transporter.sendMail({
-        from: `"NORA Health Inquiries" <${smtpUser}>`,
-        replyTo: cleanEmail,
-        to: recipientEmail,
+  if (!resendApiKey) {
+    throw new Error('RESEND_API_KEY is not configured');
+  }
+
+  const resendResponse = await fetch(
+    'https://api.resend.com/emails',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'NORA Health Inquiries <onboarding@resend.dev>',
+        to: [recipientEmail],
+        reply_to: cleanEmail,
         subject: `[NORA Inquiry] ${cleanSubject || 'General inquiry'} - ${cleanName}`,
         text: textContent,
         html: htmlContent,
-      });
+      }),
+    }
+  );
 
-      console.log(`[NORA Inquiry] Email accepted by SMTP. ID: ${inquiryId}`);
+  const resendResult = await resendResponse.json();
 
-      return res.status(200).json({
-        success: true,
-        emailed: true,
-        inquiryId,
-        timestamp,
-        message: 'Your inquiry was accepted for email delivery.',
-      });
-    } catch (error) {
+  if (!resendResponse.ok) {
+    throw new Error(
+      resendResult.message ||
+      `Resend API returned HTTP ${resendResponse.status}`
+    );
+  }
+
+  console.log(
+    `[NORA Inquiry] Email accepted by Resend. ID: ${inquiryId}`
+  );
+
+  return res.status(200).json({
+    success: true,
+    emailed: true,
+    inquiryId,
+    timestamp,
+    message: 'Your inquiry was accepted for email delivery.',
+  });
+
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown SMTP error';
 
