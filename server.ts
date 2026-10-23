@@ -3,7 +3,6 @@ import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import dotenv from 'dotenv';
-import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -12,7 +11,6 @@ const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '100kb' }));
 
-// Company status and corporate metadata
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'operational',
@@ -25,7 +23,6 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
-// Corporate Contact Inquiry Endpoint
 app.post(
   '/api/contact/inquiry',
   async (req: Request, res: Response) => {
@@ -59,25 +56,13 @@ app.post(
       });
     }
 
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = Number(process.env.SMTP_PORT || 465);
-    const smtpSecure =
-      (process.env.SMTP_SECURE || 'true').toLowerCase() === 'true';
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
+    const resendApiKey = process.env.RESEND_API_KEY;
     const recipientEmail =
       process.env.CONTACT_RECIPIENT_EMAIL ||
       'norahealthtechandinnovation@gmail.com';
 
-    if (
-      !smtpHost ||
-      !smtpUser ||
-      !smtpPass ||
-      !Number.isInteger(smtpPort) ||
-      smtpPort < 1 ||
-      smtpPort > 65535
-    ) {
-      console.error('[NORA Inquiry] SMTP configuration is incomplete.');
+    if (!resendApiKey) {
+      console.error('[NORA Inquiry] RESEND_API_KEY is missing.');
       return res.status(503).json({
         success: false,
         error: 'EMAIL_NOT_CONFIGURED',
@@ -115,62 +100,65 @@ app.post(
       <p>${escapeHtml(cleanMessage).replace(/\n/g, '<br>')}</p>
     `;
 
-    
-try {
-  const resendApiKey = process.env.RESEND_API_KEY;
-
-  if (!resendApiKey) {
-    throw new Error('RESEND_API_KEY is not configured');
-  }
-
-  const resendResponse = await fetch(
-    'https://api.resend.com/emails',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'NORA Health Inquiries <onboarding@resend.dev>',
-        to: [recipientEmail],
-        reply_to: cleanEmail,
-        subject: `[NORA Inquiry] ${cleanSubject || 'General inquiry'} - ${cleanName}`,
-        text: textContent,
-        html: htmlContent,
-      }),
-    }
-  );
-
-  const resendResult = await resendResponse.json();
-
-  if (!resendResponse.ok) {
-    throw new Error(
-      resendResult.message ||
-      `Resend API returned HTTP ${resendResponse.status}`
-    );
-  }
-
-  console.log(
-    `[NORA Inquiry] Email accepted by Resend. ID: ${inquiryId}`
-  );
-
-  return res.status(200).json({
-    success: true,
-    emailed: true,
-    inquiryId,
-    timestamp,
-    message: 'Your inquiry was accepted for email delivery.',
-  });
-
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown SMTP error';
-
-      console.error(
-        `[NORA Inquiry] Email delivery failed. ID: ${inquiryId}. Error: ${errorMessage}`
+    try {
+      const resendResponse = await fetch(
+        'https://api.resend.com/emails',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'NORA Health Inquiries <onboarding@resend.dev>',
+            to: [recipientEmail],
+            reply_to: cleanEmail,
+            subject: `[NORA Inquiry] ${cleanSubject || 'General inquiry'} - ${cleanName}`,
+            text: textContent,
+            html: htmlContent,
+          }),
+        }
       );
 
-      return res.status(500).json({
+      const resendResult = await resendResponse.json();
+
+      if (!resendResponse.ok) {
+        const apiMessage =
+          typeof resendResult.message === 'string'
+            ? resendResult.message
+            : `Resend API returned HTTP ${resendResponse.status}`;
+
+        console.error(
+          `[NORA Inquiry] Resend failed. ID: ${inquiryId}. Error: ${apiMessage}`
+        );
+
+        return res.status(502).json({
+          success: false,
+          error: 'DELIVERY_FAILED',
+          message: 'We could not send your inquiry. Please try again later.',
+        });
+      }
+
+      console.log(
+        `[NORA Inquiry] Email accepted by Resend. ID: ${inquiryId}`
+      );
+
+      return res.status(200).json({
+        success: true,
+        emailed: true,
+        inquiryId,
+        timestamp,
+        message: 'Your inquiry was accepted for email delivery.',
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown API error';
+
+      console.error(
+        `[NORA Inquiry] Resend request failed. ID: ${inquiryId}. Error: ${errorMessage}`
+      );
+
+      return res.status(502).json({
         success: false,
         error: 'DELIVERY_FAILED',
         message: 'We could not send your inquiry. Please try again later.',
@@ -179,7 +167,6 @@ try {
   }
 );
 
-// Escape user-provided content before including it in HTML email.
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {
     const entities: Record<string, string> = {
@@ -193,7 +180,6 @@ function escapeHtml(value: string): string {
   });
 }
 
-// Setup Vite middleware in dev or static files in production
 async function initServer() {
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.resolve(process.cwd(), 'dist')));
@@ -221,4 +207,5 @@ async function initServer() {
 initServer().catch((err) => {
   console.error('Failed to start server:', err);
 });
+
 
